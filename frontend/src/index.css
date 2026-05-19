@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply bg-base text-text-primary;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply min-h-screen bg-page-gradient;
+  }
+
+  ::selection {
+    background-color: #3ecf8e30;
+    color: #f0f0f8;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-border rounded-pill; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-text-dim; }
+}
+
+@layer components {
+  /* Pill nav container (matches rawl.ai floating pill nav) */
+  .nav-pill {
+    @apply bg-raised border border-border rounded-pill px-4 py-2;
+    backdrop-filter: blur(12px);
+  }
+
+  /* Card */
+  .card {
+    @apply bg-surface border border-border rounded-2xl p-5;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+  .card:hover {
+    @apply border-accent/30 bg-surface-hover;
+  }
+
+  /* Code pill (for .adf labels) */
+  .code-pill {
+    @apply font-mono text-xs bg-surface border border-border rounded-md px-1.5 py-0.5 text-text-muted;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 bg-text-primary text-base font-semibold
+           px-5 py-2.5 rounded-pill text-sm transition-opacity;
+  }
+  .btn-primary:hover { @apply opacity-90; }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 bg-transparent border border-border text-text-primary
+           font-semibold px-5 py-2.5 rounded-pill text-sm transition-colors;
+  }
+  .btn-secondary:hover { @apply border-text-muted; }
+
+  /* Eyebrow label (small teal caps label above headings) */
+  .eyebrow {
+    @apply text-accent text-xs font-semibold tracking-widest uppercase;
+  }
+
+  /* Search input */
+  .search-input {
+    @apply bg-surface border border-border rounded-pill px-4 py-2 text-sm text-text-primary
+           placeholder:text-text-muted outline-none transition-colors w-full;
+  }
+  .search-input:focus {
+    @apply border-accent/50;
+    box-shadow: 0 0 0 3px #3ecf8e10;
+  }
+}
