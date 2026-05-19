@@ -2,9 +2,11 @@ import uuid
 from typing import Annotated, List, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from fastapi.responses import FileResponse, RedirectResponse
 from sqlalchemy.orm import Session, joinedload
 
-from auth.jwt import get_current_user
+from auth.jwt import get_current_user, get_optional_current_user
+from config import settings
 from db.session import get_db
 from models.agent import Agent, Star, VALID_CATEGORIES
 from models.user import User
@@ -74,6 +76,7 @@ def search_agents(
 def get_agent(
     agent_id: uuid.UUID,
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user),
 ):
     agent = (
         db.query(Agent)
@@ -84,10 +87,42 @@ def get_agent(
     if not agent:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
 
+    user_has_starred = False
+    if current_user:
+        user_has_starred = (
+            db.query(Star)
+            .filter(Star.user_id == current_user.id, Star.agent_id == agent_id)
+            .first()
+        ) is not None
+
+    detail = AgentDetail.model_validate(agent)
+    detail.user_has_starred = user_has_starred
+    return detail
+
+
+@router.get("/{agent_id}/download")
+def download_agent(
+    agent_id: uuid.UUID,
+    db: Session = Depends(get_db),
+):
+    agent = db.get(Agent, agent_id)
+    if not agent:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found")
+
     agent.download_count += 1
     db.commit()
-    db.refresh(agent)
-    return agent
+
+    if settings.storage_backend == "s3":
+        url = storage.get_url(agent.file_path)
+        return RedirectResponse(url=url)
+
+    file_path = storage.get_url(agent.file_path)
+    safe_name = "".join(c if c.isalnum() or c in "-_." else "_" for c in agent.name)
+    return FileResponse(
+        path=file_path,
+        filename=f"{safe_name}.adf",
+        media_type="application/octet-stream",
+    )
 
 
 @router.post("/{agent_id}/star", response_model=StarResponse)
