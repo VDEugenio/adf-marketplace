@@ -47,3 +47,20 @@ def get_current_user(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
 
     return user
+
+
+def get_optional_current_user(
+    access_token: Optional[str] = Cookie(default=None),
+    db: Session = Depends(get_db),
+) -> Optional[object]:
+    """FastAPI dependency: like get_current_user but returns None instead of raising 401."""
+    from models.user import User  # local import avoids circular deps at module load
+
+    if not access_token:
+        return None
+
+    user_id = decode_access_token(access_token)
+    if not user_id:
+        return None
+
+    return db.get(User, uuid.UUID(user_id))

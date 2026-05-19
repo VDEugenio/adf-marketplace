@@ -1,4 +1,4 @@
 from .user import User
-from .agent import Agent
+from .agent import Agent, Star
 
-__all__ = ["User", "Agent"]
+__all__ = ["User", "Agent", "Star"]

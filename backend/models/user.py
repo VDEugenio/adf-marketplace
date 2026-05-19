@@ -1,8 +1,14 @@
 import uuid
+from typing import TYPE_CHECKING
+
 from sqlalchemy import BigInteger, DateTime, String, func
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from db.base import Base
+
+if TYPE_CHECKING:
+    from models.agent import Agent
 
 
 class User(Base):
@@ -18,3 +24,5 @@ class User(Base):
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+
+    agents: Mapped[list["Agent"]] = relationship("Agent", back_populates="uploader")
