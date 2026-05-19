@@ -1,13 +1,19 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from routers.health import router as health_router
+from routers.auth import router as auth_router
+from routers.agents import router as agents_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from storage import storage  # noqa: F401 — eager import surfaces misconfiguration at startup
+    from db.base import Base
+    from db.session import engine
+    import models  # noqa: F401 — registers all ORM models before create_all
+
+    Base.metadata.create_all(bind=engine)
     yield
-    # shutdown: nothing to clean up in Session 1
 
 
 app = FastAPI(
@@ -18,3 +24,5 @@ app = FastAPI(
 )
 
 app.include_router(health_router)
+app.include_router(auth_router)
+app.include_router(agents_router)
