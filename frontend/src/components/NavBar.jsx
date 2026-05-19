@@ -1,51 +1,57 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom'
-
-// Placeholder auth state — will be replaced with real context in a later session
-const MOCK_USER = null  // set to an object like { username: 'alice', avatar_url: '...' } to preview logged-in state
+import { useEffect, useRef } from 'react'
+import { Link, NavLink, useNavigate, useSearchParams } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 export default function NavBar() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const inputRef = useRef(null)
+  const { user } = useAuth()
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.value = searchParams.get('q') || ''
+    }
+  }, [searchParams])
 
   function handleSearchKey(e) {
     if (e.key === 'Enter') {
       const q = e.target.value.trim()
       if (q) navigate(`/?q=${encodeURIComponent(q)}`)
+      else navigate('/')
     }
   }
 
   return (
     <header className="sticky top-0 z-50 flex justify-center px-4 pt-4 pb-2">
       <nav className="nav-pill flex items-center gap-6 w-full max-w-4xl">
-        {/* Logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <span className="w-7 h-7 rounded-lg bg-text-primary flex items-center justify-center">
-            <span className="text-base font-black text-base leading-none">A</span>
+            <span className="text-base font-black leading-none text-base">A</span>
           </span>
           <span className="font-bold text-sm text-text-primary tracking-tight">
             ADF Marketplace
           </span>
         </Link>
 
-        {/* Search — grows to fill available space */}
         <div className="flex-1 min-w-0">
           <input
+            ref={inputRef}
             type="search"
             placeholder="Search agents…"
             className="search-input"
+            defaultValue={searchParams.get('q') || ''}
             onKeyDown={handleSearchKey}
           />
         </div>
 
-        {/* Nav links */}
         <div className="hidden sm:flex items-center gap-1 shrink-0">
           <NavLink
             to="/"
             end
             className={({ isActive }) =>
               `px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                isActive
-                  ? 'text-text-primary bg-surface'
-                  : 'text-text-muted hover:text-text-primary'
+                isActive ? 'text-text-primary bg-surface' : 'text-text-muted hover:text-text-primary'
               }`
             }
           >
@@ -55,9 +61,7 @@ export default function NavBar() {
             to="/upload"
             className={({ isActive }) =>
               `px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                isActive
-                  ? 'text-text-primary bg-surface'
-                  : 'text-text-muted hover:text-text-primary'
+                isActive ? 'text-text-primary bg-surface' : 'text-text-muted hover:text-text-primary'
               }`
             }
           >
@@ -65,27 +69,27 @@ export default function NavBar() {
           </NavLink>
         </div>
 
-        {/* Auth */}
-        {MOCK_USER ? (
-          <Link
-            to={`/profile/${MOCK_USER.username}`}
-            className="shrink-0"
-            title={MOCK_USER.username}
-          >
-            <img
-              src={MOCK_USER.avatar_url}
-              alt={MOCK_USER.username}
-              className="w-8 h-8 rounded-full border border-border object-cover"
-            />
+        {user ? (
+          <Link to={`/profile/${user.username}`} className="shrink-0" title={user.username}>
+            {user.avatar_url ? (
+              <img
+                src={user.avatar_url}
+                alt={user.username}
+                className="w-8 h-8 rounded-full border border-border object-cover"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-surface-hover border border-border flex items-center justify-center text-xs text-text-muted font-bold">
+                {user.username[0].toUpperCase()}
+              </div>
+            )}
           </Link>
-        ) : (
-          <button
-            className="btn-primary shrink-0 !py-1.5 !px-4 text-xs"
-            onClick={() => alert('GitHub OAuth — coming in Session 7')}
-          >
+        ) : user === null ? (
+          <a href="/api/auth/github" className="btn-primary shrink-0 !py-1.5 !px-4 text-xs">
             <GitHubIcon />
             Sign in
-          </button>
+          </a>
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-surface-hover border border-border animate-pulse shrink-0" />
         )}
       </nav>
     </header>

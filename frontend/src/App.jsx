@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
 import NavBar from './components/NavBar'
 import Browse from './pages/Browse'
 import AgentDetail from './pages/AgentDetail'
@@ -16,17 +17,19 @@ function NotFound() {
 
 export default function App() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <NavBar />
-      <div className="flex-1">
-        <Routes>
-          <Route path="/"                   element={<Browse />} />
-          <Route path="/agents/:id"         element={<AgentDetail />} />
-          <Route path="/upload"             element={<Upload />} />
-          <Route path="/profile/:username"  element={<UserProfile />} />
-          <Route path="*"                   element={<NotFound />} />
-        </Routes>
+    <AuthProvider>
+      <div className="min-h-screen flex flex-col">
+        <NavBar />
+        <div className="flex-1">
+          <Routes>
+            <Route path="/"                   element={<Browse />} />
+            <Route path="/agents/:id"         element={<AgentDetail />} />
+            <Route path="/upload"             element={<Upload />} />
+            <Route path="/profile/:username"  element={<UserProfile />} />
+            <Route path="*"                   element={<NotFound />} />
+          </Routes>
+        </div>
       </div>
-    </div>
+    </AuthProvider>
   )
 }

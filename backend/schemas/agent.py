@@ -31,6 +31,7 @@ class AgentSummary(BaseModel):
 
 class AgentDetail(AgentSummary):
     updated_at: datetime
+    user_has_starred: bool = False
 
 
 class StarResponse(BaseModel):
