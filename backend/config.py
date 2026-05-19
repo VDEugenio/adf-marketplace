@@ -21,14 +21,17 @@ class Settings(BaseSettings):
     aws_s3_bucket_name: str = ""
     aws_s3_region: str = "us-east-1"
 
-    # GitHub OAuth — stubbed, not used in Session 1
+    # GitHub OAuth
     github_client_id: str = ""
     github_client_secret: str = ""
-    github_redirect_uri: str = ""
+    github_redirect_uri: str = "http://localhost:8000/auth/github/callback"
 
     # JWT
     secret_key: str = "changeme"
     access_token_expire_minutes: int = 60
+
+    # Frontend — redirect target after OAuth callback
+    frontend_url: str = "http://localhost:3000"
 
 
 settings = Settings()
