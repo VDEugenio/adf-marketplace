@@ -33,6 +33,7 @@ export const api = {
   listAgents: (params) => get('/agents', params),
   searchAgents: (params) => get('/agents/search', params),
   getAgent: (id) => get(`/agents/${id}`),
+  uploadAgent: (formData) => post('/agents', formData),
   toggleStar: (id) => post(`/agents/${id}/star`),
   getMe: () => get('/auth/me'),
 }
