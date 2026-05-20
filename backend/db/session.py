@@ -2,8 +2,10 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 from config import settings
 
+_db_url = settings.database_url.replace("postgresql://", "postgresql+psycopg://", 1).replace("postgres://", "postgresql+psycopg://", 1)
+
 engine = create_engine(
-    settings.database_url,
+    _db_url,
     pool_pre_ping=True,  # re-validates connections before use; catches stale TCP connections
     echo=False,
 )
