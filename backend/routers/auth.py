@@ -114,7 +114,8 @@ async def github_callback(
         key=COOKIE_NAME,
         value=token,
         httponly=True,
-        samesite="lax",
+        samesite="none",
+        secure=True,
         max_age=settings.access_token_expire_minutes * 60,
     )
     return redirect
