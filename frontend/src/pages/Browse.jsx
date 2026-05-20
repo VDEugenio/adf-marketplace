@@ -217,7 +217,7 @@ export default function Browse() {
   )
 }
 
-function AgentCard({ agent }) {
+export function AgentCard({ agent }) {
   const raw     = agent.document_md || ''
   const excerpt = raw.replace(/[#*`[\]_~>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 150)
   const clipped = raw.length > 150
@@ -290,7 +290,7 @@ function AgentCard({ agent }) {
   )
 }
 
-function SkeletonCard() {
+export function SkeletonCard() {
   return (
     <div className="card flex flex-col gap-3 animate-pulse">
       <div className="flex items-start justify-between gap-2">

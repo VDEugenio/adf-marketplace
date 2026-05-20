@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Link, NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { API_ORIGIN } from '../api/client'
 
 export default function NavBar() {
   const navigate = useNavigate()
@@ -84,7 +85,7 @@ export default function NavBar() {
             )}
           </Link>
         ) : user === null ? (
-          <a href="/api/auth/github" className="btn-primary shrink-0 !py-1.5 !px-4 text-xs">
+          <a href={`${API_ORIGIN}/api/auth/github`} className="btn-primary shrink-0 !py-1.5 !px-4 text-xs">
             <GitHubIcon />
             Sign in
           </a>

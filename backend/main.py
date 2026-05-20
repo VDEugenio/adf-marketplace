@@ -1,8 +1,12 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from config import settings
 from routers.health import router as health_router
 from routers.auth import router as auth_router
 from routers.agents import router as agents_router
+from routers.users import router as users_router
 
 
 @asynccontextmanager
@@ -23,6 +27,16 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.include_router(health_router)
-app.include_router(auth_router)
-app.include_router(agents_router)
+origins = [o.strip() for o in settings.frontend_url.split(",")]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(health_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
+app.include_router(agents_router, prefix="/api")
+app.include_router(users_router, prefix="/api")

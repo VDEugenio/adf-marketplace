@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { api } from '../api/client'
+import { api, API_ORIGIN } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 
 export default function AgentDetail() {
@@ -11,7 +11,7 @@ export default function AgentDetail() {
 
   const [agent, setAgent]         = useState(null)
   const [loading, setLoading]     = useState(true)
-  const [error, setError]         = useState(null)
+  const [error, setError]         = useState(null)   // { message, status }
   const [starred, setStarred]     = useState(false)
   const [starCount, setStarCount] = useState(0)
   const [starring, setStarring]   = useState(false)
@@ -28,14 +28,14 @@ export default function AgentDetail() {
         setLoading(false)
       })
       .catch((err) => {
-        setError(err.message)
+        setError({ message: err.message, status: err.status })
         setLoading(false)
       })
   }, [id])
 
   function handleDownload() {
     const link = document.createElement('a')
-    link.href = `/api/agents/${id}/download`
+    link.href = `${API_ORIGIN}/api/agents/${id}/download`
     link.click()
   }
 
@@ -60,11 +60,13 @@ export default function AgentDetail() {
   if (loading) return <DetailSkeleton />
 
   if (error) {
+    const is404 = error.status === 404
     return (
       <main className="max-w-4xl mx-auto px-4 py-32 text-center">
-        <p className="text-text-muted mb-2">Failed to load agent</p>
-        <p className="text-text-dim text-xs font-mono">{error}</p>
-        <Link to="/" className="mt-6 inline-block text-accent text-sm hover:underline">
+        <p className="text-7xl font-black text-surface-hover mb-6">{is404 ? '404' : '!'}</p>
+        <p className="text-text-muted mb-2">{is404 ? 'Agent not found' : 'Failed to load agent'}</p>
+        {!is404 && <p className="text-text-dim text-xs font-mono mb-4">{error.message}</p>}
+        <Link to="/" className="mt-4 inline-block text-accent text-sm hover:underline">
           ← Back to browse
         </Link>
       </main>
@@ -254,7 +256,7 @@ function LoginPrompt({ onClose }) {
           Star agents to bookmark them for later. Sign in with GitHub to continue.
         </p>
         <div className="flex flex-col gap-2">
-          <a href="/api/auth/github" className="btn-primary justify-center">
+          <a href={`${API_ORIGIN}/api/auth/github`} className="btn-primary justify-center">
             <GitHubIcon />
             Sign in with GitHub
           </a>
