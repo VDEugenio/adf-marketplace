@@ -3,6 +3,21 @@
 export const API_ORIGIN = import.meta.env.VITE_API_URL ?? ''
 
 const BASE = API_ORIGIN + '/api'
+const TOKEN_KEY = 'auth_token'
+
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY)
+}
+
+export function setToken(token) {
+  if (token) localStorage.setItem(TOKEN_KEY, token)
+  else localStorage.removeItem(TOKEN_KEY)
+}
+
+function authHeaders(extra = {}) {
+  const token = getToken()
+  return token ? { Authorization: `Bearer ${token}`, ...extra } : extra
+}
 
 async function get(path, params = {}) {
   const url = new URL(BASE + path, window.location.origin)
@@ -11,7 +26,7 @@ async function get(path, params = {}) {
       url.searchParams.set(k, String(v))
     }
   })
-  const res = await fetch(url, { credentials: 'include' })
+  const res = await fetch(url, { headers: authHeaders() })
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
     const err = new Error(body.detail || `API error ${res.status}`)
@@ -22,11 +37,11 @@ async function get(path, params = {}) {
 }
 
 async function post(path, body) {
+  const isFormData = body instanceof FormData
   const res = await fetch(BASE + path, {
     method: 'POST',
-    credentials: 'include',
-    headers: body instanceof FormData ? undefined : { 'Content-Type': 'application/json' },
-    body: body instanceof FormData ? body : JSON.stringify(body),
+    headers: authHeaders(isFormData ? {} : { 'Content-Type': 'application/json' }),
+    body: isFormData ? body : JSON.stringify(body),
   })
   if (!res.ok) {
     const data = await res.json().catch(() => ({}))

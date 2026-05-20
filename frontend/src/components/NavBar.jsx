@@ -2,12 +2,14 @@ import { useEffect, useRef } from 'react'
 import { Link, NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { API_ORIGIN } from '../api/client'
+import { useState } from 'react'
 
 export default function NavBar() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const inputRef = useRef(null)
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
+  const [showMenu, setShowMenu] = useState(false)
 
   useEffect(() => {
     if (inputRef.current) {
@@ -71,19 +73,38 @@ export default function NavBar() {
         </div>
 
         {user ? (
-          <Link to={`/profile/${user.username}`} className="shrink-0" title={user.username}>
-            {user.avatar_url ? (
-              <img
-                src={user.avatar_url}
-                alt={user.username}
-                className="w-8 h-8 rounded-full border border-border object-cover"
-              />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-surface-hover border border-border flex items-center justify-center text-xs text-text-muted font-bold">
-                {user.username[0].toUpperCase()}
+          <div className="relative shrink-0">
+            <button onClick={() => setShowMenu((v) => !v)} title={user.username}>
+              {user.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt={user.username}
+                  className="w-8 h-8 rounded-full border border-border object-cover"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-surface-hover border border-border flex items-center justify-center text-xs text-text-muted font-bold">
+                  {user.username[0].toUpperCase()}
+                </div>
+              )}
+            </button>
+            {showMenu && (
+              <div className="absolute right-0 top-10 bg-surface border border-border rounded-xl shadow-lg py-1 w-40 z-50">
+                <Link
+                  to={`/profile/${user.username}`}
+                  className="block px-4 py-2 text-sm text-text-muted hover:text-text-primary hover:bg-surface-hover transition-colors"
+                  onClick={() => setShowMenu(false)}
+                >
+                  Profile
+                </Link>
+                <button
+                  onClick={() => { logout(); setShowMenu(false) }}
+                  className="w-full text-left px-4 py-2 text-sm text-text-muted hover:text-text-primary hover:bg-surface-hover transition-colors"
+                >
+                  Sign out
+                </button>
               </div>
             )}
-          </Link>
+          </div>
         ) : user === null ? (
           <a href={`${API_ORIGIN}/api/auth/github`} className="btn-primary shrink-0 !py-1.5 !px-4 text-xs">
             <GitHubIcon />
